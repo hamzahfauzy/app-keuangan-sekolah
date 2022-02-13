@@ -1,0 +1,5 @@
+config/main.php
+public/uploads/books/*
+# config/menu.php
+# config/icon_menu.php
+# migrations/init.sql
