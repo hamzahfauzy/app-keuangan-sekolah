@@ -26,7 +26,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="">Subjek</label>
-                                    <input type="text" class="form-control" readonly value="<?=$data->subject->special_id.' - '.$data->subject->name?>" data-toggle="modal" data-target="#exampleModal">
+                                    <input type="text" class="form-control" name="transactions[subject]" readonly value="<?=$data->subject->special_id.' - '.$data->subject->name?>" data-toggle="modal" data-target="#exampleModal">
                                 </div>
                                 <!-- <div class="form-group">
                                     <label for="">Tagihan</label>

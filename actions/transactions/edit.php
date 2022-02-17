@@ -17,6 +17,20 @@ $data->subject = $db->single('subjects',[
 
 if(request() == 'POST')
 {
+    $_subject   = explode(' - ', $_POST['transactions']['subject']);
+    $special_id = $_subject[0];
+
+    $subject_checker = $db->single('subjects',[
+        'special_id' => $special_id
+    ]);
+
+    if($subject_checker)
+    {
+        $_POST['transactions']['subject_id'] = $subject_checker->id;
+    }
+
+    unset($_POST['transactions']['subject']);
+    
     $db->update('transactions',$_POST['transactions'],[
         'id' => $_GET['id']
     ]);
