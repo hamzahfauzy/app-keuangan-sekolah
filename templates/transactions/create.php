@@ -1,4 +1,5 @@
 <?php load_templates('layouts/top') ?>
+<?php load_templates('transactions/modal') ?>
     <div class="content">
         <div class="panel-header bg-primary-gradient">
             <div class="page-inner py-5">
@@ -30,12 +31,12 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="">Subjek</label>
-                                    <input type="text" name="transactions[subject]" class="form-control" readonly>
+                                    <input type="text" name="transactions[subject]" class="form-control" readonly data-toggle="modal" data-target="#exampleModal">
                                 </div>
-                                <div class="form-group">
+                                <!-- <div class="form-group">
                                     <label for="">Tagihan</label>
                                     <input type="text" name="transactions[bill]" class="form-control" readonly>
-                                </div>
+                                </div> -->
                                 <div class="form-group">
                                     <label for="">Jumlah</label>
                                     <input type="number" name="transactions[amount]" class="form-control" required>

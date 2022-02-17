@@ -2,7 +2,7 @@
 
 $route = get_route();
 
-if($route == 'app/db-init') return true;
+if($route == 'app/db-init') return false;
 
 if(startWith($route,'api'))
 {

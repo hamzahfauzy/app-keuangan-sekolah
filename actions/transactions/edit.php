@@ -7,6 +7,14 @@ $data = $db->single('transactions',[
     'id' => $_GET['id']
 ]);
 
+$data->account = $db->single('accounts',[
+    'id' => $data->account_id
+]);
+
+$data->subject = $db->single('subjects',[
+    'id' => $data->subject_id
+]);
+
 if(request() == 'POST')
 {
     $db->update('transactions',$_POST['transactions'],[
