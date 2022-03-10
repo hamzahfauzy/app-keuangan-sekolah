@@ -51,7 +51,7 @@
                                             <td>
                                                 <?=number_format($data->amount)?><br>
                                                 <?php if($data->total_bayar): ?>
-                                                <small><i>(<?=$data->amount<=$data->total_bayar==0?'Lunas':number_format($data->amount-$data->total_bayar)?>)</i></small>
+                                                <small><i>(<?=$data->amount-$data->total_bayar==0?'Lunas':number_format($data->amount-$data->total_bayar)?>)</i></small>
                                                 <?php endif ?>
                                             </td>
                                             <td>
