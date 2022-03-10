@@ -5,8 +5,6 @@ $db   = new Database($conn);
 
 if(request() == 'POST')
 {
-    print_r($_POST);
-
     $jenis = $_POST['jenis'];
 
     $keyword = $_POST['keyword'];
@@ -39,6 +37,10 @@ if(request() == 'POST')
     }
 
     set_flash_msg(['success'=>'Subjek berhasil di import']);
-    header('location:index.php?r=subjects/index');
-    die();
+    // header('location:index.php?r=subjects/index');
+    // die();
 }
+
+// set_flash_msg(['success'=>'Subjek berhasil di import']);
+header('location:index.php?r=subjects/index');
+die();
