@@ -41,6 +41,10 @@
                                     <textarea name="transactions[description]" class="form-control" required><?=$data->description?></textarea>
                                 </div>
                                 <div class="form-group">
+                                    <label for="">Tanggal</label>
+                                    <input type="date" name="transactions[created_at]" class="form-control" value="<?=date('Y-m-d',strtotime($data->created_at))?>" required>
+                                </div>
+                                <div class="form-group">
                                     <button class="btn btn-primary">Submit</button>
                                 </div>
                             </form>

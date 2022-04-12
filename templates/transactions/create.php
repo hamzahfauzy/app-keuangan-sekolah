@@ -46,6 +46,10 @@
                                     <textarea name="transactions[description]" class="form-control" required></textarea>
                                 </div>
                                 <div class="form-group">
+                                    <label for="">Tanggal</label>
+                                    <input type="date" name="transactions[created_at]" class="form-control" required>
+                                </div>
+                                <div class="form-group">
                                     <button class="btn btn-primary">Submit</button>
                                 </div>
                             </form>

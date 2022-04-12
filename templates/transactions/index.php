@@ -29,6 +29,7 @@
                                             <th>Transaksi</th>
                                             <th>Deskripsi</th>
                                             <th>Jumlah</th>
+                                            <th>Tanggal</th>
                                             <th class="text-right">
                                             </th>
                                         </tr>
@@ -47,6 +48,7 @@
                                             </td>
                                             <td><?=$data->description?></td>
                                             <td><?=number_format($data->amount)?></td>
+                                            <td><?=$data->created_at?></td>
                                             <td>
                                                 <a href="index.php?r=transactions/edit&id=<?=$data->id?>" class="btn btn-sm btn-warning"><i class="fas fa-pencil-alt"></i> Edit</a>
                                                 <a href="index.php?r=transactions/delete&id=<?=$data->id?>" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Hapus</a>
