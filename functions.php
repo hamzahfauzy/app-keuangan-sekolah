@@ -1,5 +1,10 @@
 <?php
 
+if(file_exists('../vendor/autoload.php'))
+{
+    require '../vendor/autoload.php';
+}
+
 require '../libs/JwtAuth.php';
 require '../libs/ArrayHelper.php';
 require '../libs/Session.php';
