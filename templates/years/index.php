@@ -28,24 +28,27 @@
                                             <th width="20px">#</th>
                                             <th>Nama</th>
                                             <th>Total Anggaran</th>
-                                            <th>Penggunaan</th>
+                                            <th>Terpakai</th>
                                             <th>Sisa</th>
-                                            <th>Status</th>
+                                            <!-- <th>Status</th> -->
                                             <th class="text-right">
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach($datas as $index => $data): ?>
+                                        <?php 
+                                        foreach($datas as $index => $data): 
+                                            $terpakai = terpakai($tree,$data->id);
+                                        ?>
                                         <tr>
                                             <td>
                                                 <?=$index+1?>
                                             </td>
                                             <td><?=$data->name?></td>
-                                            <td><?=$data->budget?></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td><?=config('status_anggaran')[$data->status]?></td>
+                                            <td class="text-nowrap">Rp. <?=number_format($data->budget)?></td>
+                                            <td class="text-nowrap">Rp. <?=number_format($terpakai) ?></td>
+                                            <td class="text-nowrap">Rp. <?=number_format($data->budget-$terpakai)?></td>
+                                            <!-- <td><?=config('status_anggaran')[$data->status]?></td> -->
                                             <td>
                                                 <a href="index.php?r=budgets/index&id=<?=$data->id?>" class="btn btn-sm btn-success"><i class="fas fa-eye"></i> Lihat</a>
                                                 <a href="index.php?r=years/edit&id=<?=$data->id?>" class="btn btn-sm btn-warning"><i class="fas fa-pencil-alt"></i> Edit</a>

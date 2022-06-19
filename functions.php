@@ -476,3 +476,270 @@ function count_borrowers($date = false)
     $db->query = $query;
     return $db->exec('single')->JUMLAH;
 }
+
+function terpakai($tree, $year)
+{
+    $amount = 0;
+    foreach($tree->getRootNodes() as $root)
+    {
+        $amount += sisaBudget($root->id,$year);
+    }
+
+    return $amount;
+}
+
+function render_tree_on_row($tree, $sources, $year)
+{
+    $rows = "";
+    foreach($tree->getRootNodes() as $root):
+    $rows .= "<tr><td>$root->code</td><td class='text-nowrap'><b>$root->name</b><br><i>$root->description</i></td>";
+        foreach($sources as $source):
+            $rows .= '<td><input type="number" class="form-control" name="budgets['.$root->id.']['.$source->id.']" value="'.getBudget($root->id, $source->id, $year).'"></td>';
+        endforeach;
+    $rows .= "</tr>";
+
+    $rows .= render_descendants($root, $sources, $year, 1);
+    endforeach;
+
+    return $rows;
+}
+
+function render_descendants($node, $sources, $year, $gen)
+{
+    $rows = "";
+    foreach($node->getChildren() as $descendant):
+    $space = str_repeat('&nbsp;', $gen*8);
+    $rows .= "<tr><td>$descendant->code</td><td class='text-nowrap'>".$space.' - '.$descendant->name."<br>".$space."<span class='text-xs'><i>".$descendant->description."</i></span></td>";
+        foreach($sources as $source):
+            $rows .= '<td><input type="number" class="form-control" name="budgets['.$descendant->id.']['.$source->id.']" value="'.getBudget($descendant->id, $source->id, $year).'"></td>';
+        endforeach;
+    $rows .= "</tr>";
+
+    $rows .= render_descendants($descendant, $sources, $year, $gen+1);
+    endforeach;
+
+    return $rows;
+}
+
+function render_tree_on_row_detail($tree, $sources, $year, $detail = false)
+{
+    $rows = "";
+    foreach($tree->getRootNodes() as $root):
+
+        $item_link = "";
+        if(!$root->hasChildren() && !$detail)
+        {
+            $item_link = "<br><a href='index.php?r=budget-items/index&budget_id=$root->id'>Rincian</a>";
+        }
+        $rows .= "<tr><td>$root->code</td><td><b class='text-nowrap'>$root->name</b><br><i>$root->description</i>$item_link</td>";
+        foreach($sources as $source):
+            $rows .= '<td class="text-nowrap">Rp. '.number_format(getBudget($root->id,$source->id,$year)).'</td>';
+        endforeach;
+        $rows .= '<td class="text-nowrap">Rp. '.number_format(totalBudget($root->id,$year)).'</td>';
+        $rows .= '<td clas="text-nowrap">Rp. '.number_format(sisaBudget($root->id,$year)).'</td>';
+        if($detail)
+        {
+            $rows .= '<td clas="text-nowrap">Rp. '.number_format(totalBudget($root->id,$year)-sisaBudget($root->id,$year)).'</td>';
+        }
+        $rows .= "</tr>";
+        if($root->hasChildren())
+        {
+            $rows .= render_descendants_detail($root, $sources, $year, 1, $detail);
+        }
+        else
+        {
+            $rows .= render_item($root, $sources, $year, 1);
+        }
+    endforeach;
+
+    return $rows;
+}
+
+function render_descendants_detail($node, $sources, $year, $gen, $detail = false)
+{
+    $rows = "";
+    foreach($node->getChildren() as $descendant):
+        $space = str_repeat('&nbsp;', $gen*8);
+        $item_link = "";
+        if(!$descendant->hasChildren() && !$detail)
+        {
+            $item_link = "<br>$space<a href='index.php?r=budget-items/index&budget_id=$descendant->id'>Rincian</a>";
+        }
+        $rows .= "<tr><td>$descendant->code</td><td class='text-nowrap'>".$space.' - '.$descendant->name."<br>".$space."<span class='text-xs'><i>".$descendant->description."</i></span>$item_link</td>";
+        foreach($sources as $source):
+            $rows .= '<td class="text-nowrap">Rp. '.number_format(getBudget($descendant->id,$source->id,$year)).'</td>';
+        endforeach;
+        $rows .= '<td class="text-nowrap">Rp. '.number_format(totalBudget($descendant->id,$year)).'</td>';
+        $rows .= '<td class="text-nowrap">Rp. '.number_format(sisaBudget($descendant->id,$year)).'</td>';
+        if($detail) 
+        {
+            $rows .= '<td class="text-nowrap">Rp. '.number_format(totalBudget($descendant->id,$year)-sisaBudget($descendant->id,$year)).'</td>';
+        }
+    $rows .= "</tr>";
+    if($descendant->hasChildren())
+    {
+        $rows .= render_descendants_detail($descendant, $sources, $year, $gen+1, $detail);
+    }
+    else
+    {
+        if($detail)
+        {
+            $rows .= render_item($descendant, $sources, $year, $gen);
+        }
+    }
+    endforeach;
+
+    return $rows;
+}
+
+function render_item($node, $sources, $year, $gen)
+{
+    $conn  = conn();
+    $db    = new Database($conn);
+
+    $budget = $db->single('budgets',[
+        'activity_id' => $node->id,
+        'year_id'     => $year
+    ]);
+
+    // find date range
+    $items = [];
+    if(
+        isset($_GET['from']) && !empty($_GET['from']) &&
+        isset($_GET['to']) && !empty($_GET['to'])
+    )
+    {
+        $db->query = "SELECT * FROM budget_items WHERE budget_id = $budget->id AND created_at BETWEEN '$_GET[from] 00:00:00' AND '$_GET[to] 23:59:59'";
+        $items = $db->exec('all');
+    }
+    else
+    {
+        $items = $db->all('budget_items',[
+            'budget_id' => $budget->id
+        ]);
+    }
+    
+    $rows = "";
+    foreach($items as $item)
+    {
+        $space = str_repeat('&nbsp;', $gen*8);
+        $rows .= "<tr><td><td>".$space.' - '.$item->name."<br>".$space."<span class='text-xs'><i>".$item->description."</i></span></td>";
+        foreach($sources as $source):
+            $rows .= '<td></td>';
+        endforeach;
+        $rows .= '<td class="text-nowrap">Rp. <i>'.number_format($item->amount).'</i></td>';
+        $rows .= '<td></td>';
+        $rows .= '<td></td>';
+        $rows .= '</tr>';
+    }
+
+    return $rows;
+}
+
+function getBudget($activity,$source_id,$year)
+{
+    $conn  = conn();
+    $db    = new Database($conn);
+
+    $budget = $db->single('budgets',[
+        'activity_id' => $activity,
+        'year_id'     => $year
+    ]);
+
+    $source = $db->single('budget_sources',[
+        'budget_id' => $budget->id,
+        'source_id' => $source_id
+    ]);
+
+    return $source ? $source->amount : 0;
+}
+
+function totalBudget($activity, $year)
+{
+    $conn  = conn();
+    $db    = new Database($conn);
+
+    $budget = $db->single('budgets',[
+        'activity_id' => $activity,
+        'year_id'     => $year
+    ]);
+
+    $db->query = "SELECT SUM(amount) as total FROM budget_sources WHERE budget_id = $budget->id";
+    $source = $db->exec('single');
+
+    return $source->total;
+}
+
+function sisaBudget($activity, $year)
+{
+    $conn  = conn();
+    $db    = new Database($conn);
+
+    $activities = $db->all('activities');
+    $activities = json_decode(json_encode($activities),1);
+
+    $activities = array_map(function($d){
+        $d['id'] = (int) $d['id'];
+        $d['parent'] = (int) $d['parent_id'];
+        return $d;
+    }, $activities);
+
+    $tree = new BlueM\Tree($activities);
+
+    $node = $tree->getNodeById($activity);
+
+    $count_budget = countBudget($node, $year);
+
+    // return totalBudget($activity, $year) - $count_budget;
+    return $count_budget;
+}
+
+function countBudget($node, $year)
+{
+    $conn  = conn();
+    $db    = new Database($conn);
+
+    $counter = 0;
+    if($node->hasChildren())
+    {
+        $childrens = $node->getChildren();
+        foreach($childrens as $descendant)
+        {
+            $budget = $db->single('budgets',[
+                'activity_id' => $descendant->id,
+                'year_id'     => $year
+            ]);
+        
+            
+            $db->query = "SELECT SUM(amount) as total FROM budget_sources WHERE budget_id = $budget->id";
+            $source = $db->exec('single');
+            $counter += countBudget($descendant, $year);
+        }
+    }
+    else
+    {
+        $items = [];
+        $budget = $db->single('budgets',[
+            'activity_id' => $node->id,
+            'year_id'     => $year
+        ]);
+        if(
+            isset($_GET['from']) && !empty($_GET['from']) &&
+            isset($_GET['to']) && !empty($_GET['to'])
+        )
+        {
+            $db->query = "SELECT SUM(amount) as total FROM budget_items WHERE budget_id = $budget->id AND created_at BETWEEN '$_GET[from] 00:00:00' AND '$_GET[to] 23:59:59'";
+            $items = $db->exec('single');
+        }
+        else
+        {
+            $db->query = "SELECT SUM(amount) as total FROM budget_items WHERE budget_id = $budget->id";
+            $items = $db->exec('single');
+        }
+
+        $counter += $items ? $items->total : 0;
+    }
+
+    return $counter;
+
+}

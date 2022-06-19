@@ -30,24 +30,27 @@ td input.form-control
                             <?php if($success_msg): ?>
                             <div class="alert alert-success"><?=$success_msg?></div>
                             <?php endif ?>
-                            <table class="table table-bordered table-hover">
-                                <thead>
-                                    <tr>
-                                        <th class="text-center" rowspan="2">Kode</th>
-                                        <th class="text-center" rowspan="2">Kegiatan/Sub Kegiatan</th>
-                                        <th class="text-center" colspan="<?=count($sources)+1?>">Anggaran</th>
-                                        <th class="text-center" rowspan="2">Total</th>
-                                    </tr>
-                                    <tr>
-                                        <?php foreach($sources as $source): ?>
-                                        <th class="text-center"><?=$source->name?></th>
-                                        <?php endforeach ?>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?= render_tree_on_row_detail($tree, $sources, $_GET['id']) ?>
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center text-nowrap" rowspan="2">Kode</th>
+                                            <th class="text-center text-nowrap" rowspan="2">Kegiatan/Sub Kegiatan</th>
+                                            <th class="text-center text-nowrap" colspan="<?=count($sources)?>">Anggaran</th>
+                                            <th class="text-center text-nowrap" rowspan="2">Total</th>
+                                            <th class="text-center text-nowrap" rowspan="2">Terpakai</th>
+                                        </tr>
+                                        <tr>
+                                            <?php foreach($sources as $source): ?>
+                                            <th class="text-center"><?=$source->name?></th>
+                                            <?php endforeach ?>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?= render_tree_on_row_detail($tree, $sources, $_GET['id']) ?>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
